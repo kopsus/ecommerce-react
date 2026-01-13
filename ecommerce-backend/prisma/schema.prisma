@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+  SELLER
+}
+
+enum VendorStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+
+  // Relasi
+  vendorProfile Vendor?    // User bisa punya 1 profil vendor (opsional)
+  reviews       Review[]   // User bisa menulis banyak review
+  orders        Order[]    // User bisa punya banyak order
+  wishlist      Wishlist[] // Barang yang diinginkan
+}
+
+model Vendor {
+  id          Int          @id @default(autoincrement())
+  storeName   String
+  description String?
+  status      VendorStatus @default(PENDING) // Default pending sampai Admin approve
+  userId      Int          @unique // 1 User hanya bisa punya 1 Vendor profile
+  user        User         @relation(fields: [userId], references: [id])
+  
+  // Relasi
+  products    Product[]
+  vouchers    Voucher[]
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?  
+  price       Float    
+  stock       Int
+  
+  sellerId    Int
+  seller      User     @relation(fields: [sellerId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Voucher {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  discount  Int      // Persen atau nominal
+  vendorId  Int
+  vendor    Vendor   @relation(fields: [vendorId], references: [id])
+}
+
+model Review {
+  id        Int     @id @default(autoincrement())
+  rating    Int     // Skala 1-5
+  comment   String?
+  userId    Int
+  productId Int
+  user      User    @relation(fields: [userId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+// Model tambahan untuk Order dan Wishlist disederhanakan
+model Order {
+  id     Int @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+  items  OrderItem[]
+  status String @default("PENDING")
+}
+
+model OrderItem {
+  id        Int @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Wishlist {
+  id        Int @id @default(autoincrement())
+  userId    Int
+  productId Int
+  user      User    @relation(fields: [userId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}

@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": false,
+
+    /* Jalur Output */
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    /* Keamanan & Tipe Data */
+    "strict": true,
+    "skipLibCheck": true /* Mengabaikan pengecekan error di file node_modules */,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}

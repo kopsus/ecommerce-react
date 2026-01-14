@@ -34,6 +34,8 @@ model User {
   createdAt DateTime @default(now())
 
   products  Product[]
+  cartItems CartItem[]
+  orders    Order[]
 }
 model Product {
   id          Int      @id @default(autoincrement())
@@ -47,4 +49,58 @@ model Product {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  quantity  Int      @default(1)
+  
+  // Milik User Siapa?
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  
+  // Produk Apa?
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Mencegah duplikasi: Satu user tidak boleh punya baris double untuk produk yang sama.
+  // Kalau beli produk yg sama lagi, kita update quantity-nya, bukan buat baris baru.
+  @@unique([userId, productId]) 
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  COMPLETED
+  CANCELLED
+}
+
+// Model Order (Nota Pesanan)
+model Order {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  user        User        @relation(fields: [userId], references: [id])
+  totalAmount Float
+  status      OrderStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+  
+  items       OrderItem[]
+}
+
+// Model OrderItem (Barang dalam Nota)
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float   // Kita simpan harga SAAT BELI (penting jika harga produk berubah nanti)
 }

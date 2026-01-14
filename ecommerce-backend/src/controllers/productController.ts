@@ -1,8 +1,6 @@
 import { Response } from "express";
-import { PrismaClient } from "@prisma/client";
 import { AuthRequest } from "../middleware/authMiddleware";
-
-const prisma = new PrismaClient();
+import { prisma } from "../db";
 
 export const createProduct = async (
   req: AuthRequest,

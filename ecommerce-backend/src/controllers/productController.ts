@@ -59,3 +59,87 @@ export const getAllProducts = async (
     res.status(500).json({ message: "Gagal mengambil data produk", error });
   }
 };
+
+export const updateProduct = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params; // Ambil ID produk dari URL
+    const { name, description, price, stock } = req.body;
+    const userId = req.user?.userId;
+
+    // 1. Cek dulu apakah produknya ada?
+    const product = await prisma.product.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!product) {
+      res.status(404).json({ message: "Produk tidak ditemukan" });
+      return;
+    }
+
+    // 2. Cek apakah yang mau edit adalah pemilik produknya?
+    if (product.sellerId !== userId) {
+      res
+        .status(403)
+        .json({ message: "Anda tidak memiliki izin mengedit produk ini" });
+      return;
+    }
+
+    // 3. Lakukan update
+    const updatedProduct = await prisma.product.update({
+      where: { id: Number(id) },
+      data: {
+        name,
+        description,
+        price: price ? parseFloat(price) : undefined, // Update jika ada data baru
+        stock: stock ? parseInt(stock) : undefined,
+      },
+    });
+
+    res.status(200).json({
+      message: "Produk berhasil diperbarui",
+      product: updatedProduct,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Gagal mengupdate produk", error });
+  }
+};
+
+export const deleteProduct = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.userId;
+
+    // 1. Cek produk ada atau tidak
+    const product = await prisma.product.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!product) {
+      res.status(404).json({ message: "Produk tidak ditemukan" });
+      return;
+    }
+
+    // 2. Cek kepemilikan
+    if (product.sellerId !== userId) {
+      res
+        .status(403)
+        .json({ message: "Anda tidak berhak menghapus produk ini" });
+      return;
+    }
+
+    // 3. Hapus produk
+    await prisma.product.delete({
+      where: { id: Number(id) },
+    });
+
+    res.status(200).json({ message: "Produk berhasil dihapus" });
+  } catch (error) {
+    res.status(500).json({ message: "Gagal menghapus produk", error });
+  }
+};

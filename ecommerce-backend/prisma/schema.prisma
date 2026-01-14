@@ -19,23 +19,25 @@ enum Role {
   SELLER
 }
 
-enum VendorStatus {
-  PENDING
-  APPROVED
-  REJECTED
+enum VendorVerifStatus {
+  NONE      
+  PENDING  
+  APPROVED  
+  REJECTED  
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String
-  role      Role     @default(CUSTOMER)
-  createdAt DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  password     String
+  name         String
+  role         Role     @default(CUSTOMER)
+  vendorStatus VendorVerifStatus @default(NONE)
+  createdAt    DateTime @default(now())
 
-  products  Product[]
-  cartItems CartItem[]
-  orders    Order[]
+  products    Product[]
+  cartItems   CartItem[]
+  orders      Order[]
 }
 model Product {
   id          Int      @id @default(autoincrement())

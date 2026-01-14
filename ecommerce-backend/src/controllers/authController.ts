@@ -102,3 +102,95 @@ export const getProfile = async (
     res.status(500).json({ message: "Terjadi kesalahan server", error });
   }
 };
+
+export const applyAsSeller = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+
+    // Cek user saat ini
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      res.status(404).json({ message: "User tidak ditemukan" });
+      return;
+    }
+
+    if (user.role === "SELLER" || user.role === "ADMIN") {
+      res.status(400).json({ message: "Anda sudah menjadi Penjual/Admin" });
+      return;
+    }
+
+    if (user.vendorStatus === "PENDING") {
+      res.status(400).json({ message: "Pengajuan Anda sedang diproses" });
+      return;
+    }
+
+    // Update status jadi PENDING
+    await prisma.user.update({
+      where: { id: userId },
+      data: { vendorStatus: "PENDING" },
+    });
+
+    res.status(200).json({
+      message: "Pengajuan berhasil dikirim. Tunggu persetujuan Admin.",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Gagal mengajukan vendor", error });
+  }
+};
+
+// --- VERIFIKASI VENDOR (Khusus Admin) ---
+export const verifyVendor = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId, action } = req.body; // action: 'APPROVE' atau 'REJECT'
+    const adminRole = req.user?.role;
+
+    if (adminRole !== "ADMIN") {
+      res.status(403).json({ message: "Hanya Admin yang boleh verifikasi" });
+      return;
+    }
+
+    if (action === "APPROVE") {
+      await prisma.user.update({
+        where: { id: Number(userId) },
+        data: {
+          role: "SELLER",
+          vendorStatus: "APPROVED",
+        },
+      });
+      res.status(200).json({ message: "User berhasil di-upgrade jadi SELLER" });
+    } else if (action === "REJECT") {
+      await prisma.user.update({
+        where: { id: Number(userId) },
+        data: { vendorStatus: "REJECTED" },
+      });
+      res.status(200).json({ message: "Pengajuan ditolak" });
+    } else {
+      res.status(400).json({ message: "Action harus APPROVE atau REJECT" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Gagal memproses verifikasi", error });
+  }
+};
+
+// --- LIHAT LIST PENGAJUAN (Khusus Admin) ---
+export const getPendingVendors = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const users = await prisma.user.findMany({
+      where: { vendorStatus: "PENDING" },
+      select: { id: true, name: true, email: true, vendorStatus: true },
+    });
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Error server", error });
+  }
+};

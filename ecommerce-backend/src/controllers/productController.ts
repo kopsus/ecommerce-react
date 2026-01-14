@@ -7,13 +7,11 @@ export const createProduct = async (
   res: Response
 ): Promise<void> => {
   try {
-    // Ambil data dari body postman
-    const { name, description, price, stock } = req.body;
-
-    // Ambil ID user dari token (yg sudah dicek middleware)
+    const body = req.body || {};
+    const { name, description, price, stock } = body;
     const sellerId = req.user?.userId;
+    const imagePath = req.file ? req.file.filename : null; // Ambil path gambar
 
-    // Validasi sederhana
     if (!name || !price || !sellerId) {
       res.status(400).json({ message: "Nama dan harga wajib diisi" });
       return;
@@ -23,9 +21,10 @@ export const createProduct = async (
       data: {
         name,
         description,
-        price: parseFloat(price), // Jaga-jaga kalau dikirim string, kita ubah jadi angka
+        price: parseFloat(price),
         stock: parseInt(stock),
-        sellerId: sellerId, // Produk ini otomatis terhubung ke user yang login
+        sellerId: sellerId,
+        image: imagePath,
       },
     });
 
@@ -33,8 +32,16 @@ export const createProduct = async (
       message: "Produk berhasil dibuat",
       product,
     });
-  } catch (error) {
-    res.status(500).json({ message: "Gagal membuat produk", error });
+  } catch (error: any) {
+    // Tambahkan ': any' biar typescript tidak rewel
+    // 1. Tampilkan Error di Terminal VS Code
+    console.error("❌ ERROR CREATE PRODUCT:", error);
+
+    // 2. Kirim pesan error yang jelas ke Postman
+    res.status(500).json({
+      message: "Gagal membuat produk",
+      error: error.message || "Internal Server Error", // Ambil .message nya saja
+    });
   }
 };
 

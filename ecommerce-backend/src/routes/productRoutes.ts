@@ -6,11 +6,12 @@ import {
   updateProduct,
 } from "../controllers/productController";
 import { authenticateToken } from "../middleware/authMiddleware";
+import { upload } from "../utils/upload";
 
 const router = Router();
 
 router.get("/", getAllProducts);
-router.post("/", authenticateToken, createProduct);
+router.post("/", authenticateToken, upload.single("image"), createProduct);
 router.put("/:id", authenticateToken, updateProduct);
 router.delete("/:id", authenticateToken, deleteProduct);
 

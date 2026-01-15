@@ -38,6 +38,7 @@ model User {
   products    Product[]
   cartItems   CartItem[]
   orders      Order[]
+  reviews     Review[]
 }
 model Product {
   id          Int      @id @default(autoincrement())
@@ -54,6 +55,7 @@ model Product {
 
   cartItems   CartItem[]
   orderItems  OrderItem[]
+  reviews     Review[]
 }
 
 model CartItem {
@@ -105,4 +107,21 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
   price     Float   // Kita simpan harga SAAT BELI (penting jika harga produk berubah nanti)
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Int      // Skala 1 - 5
+  comment   String?  // Boleh kosong kalau cuma mau kasih bintang
+  
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  // Opsional: Satu user cuma boleh review 1x per produk
+  @@unique([userId, productId])
 }

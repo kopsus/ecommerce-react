@@ -9,7 +9,8 @@ export const checkout = async (
 ): Promise<void> => {
   try {
     const userId = req.user?.userId;
-    const { user } = req; // Kita butuh data user (nama/email) untuk dikirim ke Midtrans
+    const { user } = req; // Kita butuh data user (nama/email) untuk dikirim ke
+    const { voucherCode } = req.body;
 
     // 1. Ambil Keranjang
     const cartItems = await prisma.cartItem.findMany({
@@ -27,13 +28,57 @@ export const checkout = async (
       return total + item.product.price * item.quantity;
     }, 0);
 
+    let discountAmount = 0;
+    let validVoucherId = null;
+
+    if (voucherCode) {
+      // Cari vouchernya
+      const voucher = await prisma.voucher.findUnique({
+        where: { code: voucherCode },
+      });
+
+      // Validasi Voucher
+      if (!voucher) {
+        res.status(404).json({ message: "Voucher tidak ditemukan" });
+        return;
+      }
+
+      // Cek Kadaluarsa
+      if (new Date() > voucher.expiresAt) {
+        res.status(400).json({ message: "Voucher sudah kadaluarsa" });
+        return;
+      }
+
+      // Cek Minimal Belanja
+      if (voucher.minPurchase && totalAmount < voucher.minPurchase) {
+        res.status(400).json({
+          message: `Minimal belanja ${voucher.minPurchase} untuk pakai voucher ini`,
+        });
+        return;
+      }
+
+      // Hitung Potongan
+      if (voucher.type === "FIXED") {
+        discountAmount = voucher.amount;
+      } else if (voucher.type === "PERCENT") {
+        discountAmount = (totalAmount * voucher.amount) / 100;
+      }
+
+      // Set Voucher ID untuk disimpan nanti
+      validVoucherId = voucher.id;
+    }
+
+    const finalAmount = Math.max(totalAmount - discountAmount, 0);
+
     // 3. Simpan Order ke Database (Status PENDING)
     // Kita butuh ID Order ini untuk dikirim ke Midtrans
     const order = await prisma.$transaction(async (tx) => {
       const newOrder = await tx.order.create({
         data: {
           userId: userId,
-          totalAmount: totalAmount,
+          totalAmount: finalAmount,
+          voucherId: validVoucherId,
+          discountAmount: discountAmount,
           status: "PENDING",
           items: {
             create: cartItems.map((item) => ({
@@ -73,10 +118,12 @@ export const checkout = async (
 
     // 5. Kirim Token ke Frontend
     res.status(201).json({
-      message: "Order dibuat, silakan bayar",
+      message: "Order dibuat",
       orderId: order.id,
-      total: order.totalAmount,
-      midtransToken: token.token, // <--- Ini "Kunci" buat popup pembayaran
+      totalBeforeDiscount: totalAmount,
+      discount: discountAmount,
+      finalTotal: order.totalAmount,
+      midtransToken: token.token,
       redirectUrl: token.redirect_url,
     });
   } catch (error) {

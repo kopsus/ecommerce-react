@@ -39,6 +39,7 @@ model User {
   cartItems   CartItem[]
   orders      Order[]
   reviews     Review[]
+  vouchers    Voucher[]
 }
 model Product {
   id          Int      @id @default(autoincrement())
@@ -94,6 +95,12 @@ model Order {
   totalAmount Float
   status      OrderStatus @default(PENDING)
   createdAt   DateTime    @default(now())
+
+  voucherId   Int?
+  voucher     Voucher? @relation(fields: [voucherId], references: [id])
+  
+  // Kita perlu simpan juga nilai diskonnya saat itu (snapshot)
+  discountAmount Float @default(0)
   
   items       OrderItem[]
 }
@@ -124,4 +131,26 @@ model Review {
 
   // Opsional: Satu user cuma boleh review 1x per produk
   @@unique([userId, productId])
+}
+
+enum DiscountType {
+  PERCENT   // Potongan persen (misal 10%)
+  FIXED     // Potongan harga tetap (misal Rp 10.000)
+}
+
+model Voucher {
+  id          Int          @id @default(autoincrement())
+  code        String       @unique // Kode unik, misal "MERDEKA45"
+  type        DiscountType
+  amount      Float        // Nilai potongan (bisa 10 (persen) atau 10000 (rupiah))
+  minPurchase Float?       // Minimal belanja biar bisa pakai (opsional)
+  expiresAt   DateTime     // Tanggal kadaluarsa
+  
+  sellerId    Int
+  seller      User         @relation(fields: [sellerId], references: [id])
+
+  createdAt   DateTime     @default(now())
+  
+  // Relasi ke Order (Satu voucher bisa dipakai di banyak order)
+  orders      Order[]
 }

@@ -7,6 +7,7 @@ import cartRoutes from "./routes/cartRoutes";
 import orderRoutes from "./routes/orderRoutes";
 import path from "path";
 import reviewRoutes from "./routes/reviewRoutes";
+import voucherRoutes from "./routes/voucherRoutes";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/vouchers", voucherRoutes);
 
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 

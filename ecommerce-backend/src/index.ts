@@ -8,6 +8,8 @@ import orderRoutes from "./routes/orderRoutes";
 import path from "path";
 import reviewRoutes from "./routes/reviewRoutes";
 import voucherRoutes from "./routes/voucherRoutes";
+import wishlistRoutes from "./routes/wishlistRoutes";
+import analyticsRoutes from "./routes/analyticsRoutes";
 
 dotenv.config();
 
@@ -29,6 +31,8 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/vouchers", voucherRoutes);
+app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 

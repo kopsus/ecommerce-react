@@ -40,6 +40,7 @@ model User {
   orders      Order[]
   reviews     Review[]
   vouchers    Voucher[]
+  wishlist    Wishlist[]
 }
 model Product {
   id          Int      @id @default(autoincrement())
@@ -57,6 +58,7 @@ model Product {
   cartItems   CartItem[]
   orderItems  OrderItem[]
   reviews     Review[]
+  wishlistItems Wishlist[]
 }
 
 model CartItem {
@@ -153,4 +155,19 @@ model Voucher {
   
   // Relasi ke Order (Satu voucher bisa dipakai di banyak order)
   orders      Order[]
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  // Mencegah duplikasi: Satu user cuma bisa wishlist produk yg sama 1x
+  @@unique([userId, productId])
 }

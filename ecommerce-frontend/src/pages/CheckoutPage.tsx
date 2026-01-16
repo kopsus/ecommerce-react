@@ -51,17 +51,29 @@ const CheckoutPage = () => {
       // 2. Munculkan Popup Midtrans
       if (window.snap) {
         window.snap.pay(midtransToken, {
-          onSuccess: function (result) {
-            toast.success("Pembayaran Berhasil! 🎉");
-            refreshCart(); // Kosongkan keranjang di navbar
-            navigate("/orders"); // Pindah ke halaman riwayat pesanan (Next Step)
-            console.log(result);
+          onSuccess: async function (result: any) {
+            try {
+              await api.post("/orders/notification", {
+                order_id: result.order_id,
+                transaction_status: "settlement", // Kata kunci Midtrans untuk "Lunas"
+                fraud_status: "accept",
+              });
+
+              toast.success("Pembayaran Berhasil & Terverifikasi! 🎉");
+              refreshCart(); // Reset keranjang
+              navigate("/profile"); // Arahkan ke halaman Profile/History
+            } catch (error) {
+              console.error("Gagal update status otomatis:", error);
+              toast.success(
+                "Pembayaran berhasil, tapi status sedang diproses sistem."
+              );
+              navigate("/profile");
+            }
           },
-          onPending: function (result) {
+          onPending: function () {
             toast("Menunggu pembayaran...", { icon: "⏳" });
             refreshCart();
             navigate("/orders");
-            console.log(result);
           },
           onError: function (result) {
             toast.error("Pembayaran Gagal");

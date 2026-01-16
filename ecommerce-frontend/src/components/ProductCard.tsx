@@ -58,7 +58,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
       toast.success("Disimpan ke Wishlist ❤");
       refreshWishlist();
     } catch (error: any) {
-      // Backend akan return 400 kalau sudah ada
       const msg = error.response?.data?.message;
       if (msg === "Produk sudah ada di wishlist") {
         toast("Produk sudah ada di wishlist", { icon: "ℹ️" });
@@ -70,7 +69,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition duration-300 border border-gray-100 overflow-hidden flex flex-col h-full">
-      {/* Gambar Produk */}
       <div className="h-48 w-full bg-gray-100 relative overflow-hidden group">
         <img
           src={
@@ -81,7 +79,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
         />
-        {/* Tombol Wishlist (Hati) muncul saat hover */}
         <button
           onClick={handleAddToWishlist}
           className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition transform translate-y-2 group-hover:translate-y-0 text-gray-400 hover:text-red-500"
@@ -90,7 +87,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </button>
       </div>
 
-      {/* Info Produk */}
       <div className="p-4 flex flex-col grow">
         <div className="grow">
           <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 mb-1">
@@ -111,7 +107,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
           <button
             onClick={handleAddToCart}
-            disabled={loading || product.stock <= 0} // Disable kalau loading atau stok habis
+            disabled={loading || product.stock <= 0}
             className="bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-lg transition shadow-md flex items-center gap-2 disabled:bg-gray-400"
           >
             {loading ? (

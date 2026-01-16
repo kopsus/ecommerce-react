@@ -12,13 +12,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  // 1. Ambil User dari LocalStorage SAAT INISIALISASI (Lazy State)
   const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  // 2. Ambil Token dari LocalStorage SAAT INISIALISASI
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem("token");
   });

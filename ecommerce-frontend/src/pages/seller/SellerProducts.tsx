@@ -19,7 +19,6 @@ const SellerProducts = () => {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  // State untuk Modal & Form
   const [showModal, setShowModal] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -29,18 +28,16 @@ const SellerProducts = () => {
     setPrice(product.price.toString());
     setStock(product.stock.toString());
     setDescription(product.description);
-    setImageFile(null); // Reset file input (user tidak wajib ganti foto)
+    setImageFile(null);
     setShowModal(true);
   };
 
-  // State Input Form
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  // 1. Ambil Data Produk
   const fetchMyProducts = useCallback(async () => {
     try {
       const response = await api.get("/products");
@@ -57,12 +54,10 @@ const SellerProducts = () => {
 
   useEffect(() => {
     if (user) {
-      // Pastikan user ada baru fetch
       fetchMyProducts();
     }
   }, [fetchMyProducts, user]);
 
-  // 2. Handle Upload Produk (Create)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !price || !stock) {
@@ -83,13 +78,11 @@ const SellerProducts = () => {
 
     try {
       if (editingId) {
-        // --- MODE EDIT (PUT) ---
         await api.put(`/products/${editingId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         toast.success("Produk berhasil diupdate!");
       } else {
-        // --- MODE TAMBAH (POST) ---
         await api.post("/products", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
@@ -107,7 +100,6 @@ const SellerProducts = () => {
     }
   };
 
-  // 3. Handle Hapus Produk
   const handleDelete = async (id: number) => {
     if (!confirm("Yakin ingin menghapus produk ini?")) return;
 
@@ -121,7 +113,7 @@ const SellerProducts = () => {
   };
 
   const resetForm = () => {
-    setEditingId(null); // Reset ID
+    setEditingId(null);
     setName("");
     setDescription("");
     setPrice("");
@@ -131,12 +123,11 @@ const SellerProducts = () => {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    resetForm(); // Penting biar pas buka lagi form-nya bersih
+    resetForm();
   };
 
   return (
     <div>
-      {/* HEADER HALAMAN */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Produk Saya</h1>
         <button
@@ -147,7 +138,6 @@ const SellerProducts = () => {
         </button>
       </div>
 
-      {/* TABEL PRODUK */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         {loading ? (
           <div className="p-10 text-center text-gray-500">Memuat produk...</div>
@@ -189,7 +179,6 @@ const SellerProducts = () => {
                     {product.stock}
                   </td>
                   <td className="p-4 text-center flex items-center justify-center gap-2">
-                    {/* TOMBOL EDIT */}
                     <button
                       onClick={() => handleEdit(product)}
                       className="p-2 text-blue-500 hover:bg-blue-50 rounded-full transition"
@@ -198,7 +187,6 @@ const SellerProducts = () => {
                       <Edit className="w-5 h-5" />
                     </button>
 
-                    {/* TOMBOL DELETE */}
                     <button
                       onClick={() => handleDelete(product.id)}
                       className="p-2 text-red-500 hover:bg-red-50 rounded-full transition"
@@ -214,7 +202,6 @@ const SellerProducts = () => {
         )}
       </div>
 
-      {/* MODAL TAMBAH PRODUK */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-fade-in">
@@ -231,7 +218,6 @@ const SellerProducts = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {/* Upload Image */}
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition cursor-pointer relative">
                 <input
                   type="file"

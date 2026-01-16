@@ -7,8 +7,6 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { UseCart } from "../context/CartContext";
 import { UseWishlist } from "../context/WishlistContext";
-
-// Kita definisikan tipe data khusus untuk respon wishlist
 interface WishlistItem {
   id: number;
   productId: number;
@@ -46,7 +44,6 @@ const WishlistPage = () => {
   const handleRemove = async (productId: number) => {
     try {
       await api.delete(`/wishlist/${productId}`);
-      // Update UI: Hapus item yang ID produknya cocok
       setWishlist((prev) =>
         prev.filter((item) => item.product.id !== productId)
       );
@@ -95,7 +92,6 @@ const WishlistPage = () => {
                 key={item.id}
                 className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group"
               >
-                {/* Gambar */}
                 <div className="h-48 relative overflow-hidden bg-gray-100">
                   <img
                     src={
@@ -106,7 +102,6 @@ const WishlistPage = () => {
                     alt={item.product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   />
-                  {/* Tombol Hapus Absolute */}
                   <button
                     onClick={() => handleRemove(item.product.id)}
                     className="absolute top-2 right-2 p-2 bg-white/80 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-full transition shadow-sm backdrop-blur-sm"
@@ -116,7 +111,6 @@ const WishlistPage = () => {
                   </button>
                 </div>
 
-                {/* Info */}
                 <div className="p-4 flex flex-col grow">
                   <h3 className="font-semibold text-gray-800 line-clamp-1 mb-1">
                     {item.product.name}

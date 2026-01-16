@@ -16,7 +16,6 @@ const AdminLayout = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // Proteksi Admin
   if (!user || user.role !== "ADMIN") {
     navigate("/login");
     return null;
@@ -29,7 +28,6 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      {/* SIDEBAR */}
       <aside
         className={`bg-slate-900 text-white shadow-xl fixed z-20 h-screen transition-all duration-300 ${
           isSidebarOpen ? "w-64" : "w-20"
@@ -86,7 +84,6 @@ const AdminLayout = () => {
         </nav>
       </aside>
 
-      {/* CONTENT */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white shadow-sm h-16 flex items-center px-4 lg:hidden">
           <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2">

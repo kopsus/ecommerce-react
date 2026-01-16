@@ -19,7 +19,7 @@ export const createProduct = async (
     const body = req.body || {};
     const { name, description, price, stock } = body;
     const sellerId = req.user?.userId;
-    const imagePath = req.file ? req.file.filename : null; // Ambil path gambar
+    const imagePath = req.file ? req.file.filename : null;
 
     if (!name || !price || !sellerId) {
       res.status(400).json({ message: "Nama dan harga wajib diisi" });
@@ -42,14 +42,11 @@ export const createProduct = async (
       product,
     });
   } catch (error: any) {
-    // Tambahkan ': any' biar typescript tidak rewel
-    // 1. Tampilkan Error di Terminal VS Code
     console.error("❌ ERROR CREATE PRODUCT:", error);
 
-    // 2. Kirim pesan error yang jelas ke Postman
     res.status(500).json({
       message: "Gagal membuat produk",
-      error: error.message || "Internal Server Error", // Ambil .message nya saja
+      error: error.message || "Internal Server Error",
     });
   }
 };
@@ -62,7 +59,6 @@ export const getAllProducts = async (
     const products = await prisma.product.findMany({
       include: {
         seller: {
-          // Kita ikut sertakan data penjualnya (tapi cuma nama & email)
           select: { name: true, email: true },
         },
       },
@@ -81,9 +77,8 @@ export const updateProduct = async (
   try {
     const { id } = req.params;
     const { name, description, price, stock } = req.body;
-    const image = req.file?.filename; // Nama file baru (jika ada)
+    const image = req.file?.filename;
 
-    // 1. Cek produk lama
     const oldProduct = await prisma.product.findUnique({
       where: { id: Number(id) },
     });
@@ -92,13 +87,11 @@ export const updateProduct = async (
       return;
     }
 
-    // 2. Cek kepemilikan
     if (oldProduct.sellerId !== req.user?.userId) {
       res.status(403).json({ message: "Bukan produk anda" });
       return;
     }
 
-    // 3. Logic Ganti Foto
     let updatedData: any = {
       name,
       description,
@@ -107,16 +100,12 @@ export const updateProduct = async (
     };
 
     if (image) {
-      // Jika user upload foto baru:
-      // a. Hapus foto lama dari folder
       if (oldProduct.image) {
         deleteImageFile(oldProduct.image);
       }
-      // b. Masukkan nama foto baru ke database
       updatedData.image = image;
     }
 
-    // 4. Update Database
     const product = await prisma.product.update({
       where: { id: Number(id) },
       data: updatedData,
@@ -136,10 +125,9 @@ export const deleteProduct = async (
   try {
     const { id } = req.params;
 
-    // 1. Cek produk
     const product = await prisma.product.findUnique({
       where: { id: Number(id) },
-      include: { _count: { select: { orderItems: true } } }, // Cek apakah ada order
+      include: { _count: { select: { orderItems: true } } },
     });
 
     if (!product) {
@@ -152,7 +140,6 @@ export const deleteProduct = async (
       return;
     }
 
-    // 2. Proteksi: Jangan hapus jika sudah pernah terjual
     if (product._count.orderItems > 0) {
       res.status(400).json({
         message:
@@ -161,12 +148,10 @@ export const deleteProduct = async (
       return;
     }
 
-    // 3. Hapus File Gambar Fisik
     if (product.image) {
       deleteImageFile(product.image);
     }
 
-    // 4. Hapus dari Database
     await prisma.product.delete({ where: { id: Number(id) } });
 
     res.status(200).json({ message: "Produk dan gambar berhasil dihapus" });

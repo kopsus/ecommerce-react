@@ -45,22 +45,18 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
-    // 1. Cari user berdasarkan email
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       res.status(404).json({ message: "User tidak ditemukan" });
       return;
     }
 
-    // 2. Cek apakah password cocok
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       res.status(401).json({ message: "Password salah" });
       return;
     }
 
-    // 3. Buat Token (JWT)
-    // Token ini berisi ID user dan Role-nya, berlaku selama 1 hari (1d)
     const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, {
       expiresIn: "1d",
     });
@@ -85,7 +81,6 @@ export const getProfile = async (
   res: Response
 ): Promise<void> => {
   try {
-    // Karena sudah melewati middleware, kita bisa akses req.user
     const userId = req.user?.userId;
 
     const user = await prisma.user.findUnique({
@@ -96,7 +91,7 @@ export const getProfile = async (
         email: true,
         role: true,
         vendorStatus: true,
-      }, // Jangan tampilkan password!
+      },
     });
 
     if (!user) {
@@ -117,7 +112,6 @@ export const applyAsSeller = async (
   try {
     const userId = req.user?.userId;
 
-    // Cek user saat ini
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
@@ -135,7 +129,6 @@ export const applyAsSeller = async (
       return;
     }
 
-    // Update status jadi PENDING
     await prisma.user.update({
       where: { id: userId },
       data: { vendorStatus: "PENDING" },
@@ -159,15 +152,14 @@ export const verifyVendor = async (
       return;
     }
 
-    const { id } = req.params; // ID User yang mau diverifikasi
-    const { status } = req.body; // 'APPROVED' atau 'REJECTED'
+    const { id } = req.params;
+    const { status } = req.body;
 
     if (!["APPROVED", "REJECTED"].includes(status)) {
       res.status(400).json({ message: "Status tidak valid" });
       return;
     }
 
-    // Logic: Jika APPROVED, ubah role jadi SELLER juga
     const updateData: any = { vendorStatus: status };
     if (status === "APPROVED") {
       updateData.role = "SELLER";

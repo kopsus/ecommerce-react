@@ -2,7 +2,6 @@ import { Response } from "express";
 import { prisma } from "../db";
 import { AuthRequest } from "../middleware/authMiddleware";
 
-// --- DASHBOARD ADMIN (Global Stats) ---
 export const getAdminStats = async (
   req: AuthRequest,
   res: Response
@@ -13,17 +12,14 @@ export const getAdminStats = async (
       return;
     }
 
-    // 1. Total User & Seller
     const totalUsers = await prisma.user.count({ where: { role: "CUSTOMER" } });
     const totalSellers = await prisma.user.count({ where: { role: "SELLER" } });
     const pendingVendors = await prisma.user.count({
       where: { vendorStatus: "PENDING" },
     });
 
-    // 2. Total Pesanan (Yang sudah lunas)
     const totalOrders = await prisma.order.count({ where: { status: "PAID" } });
 
-    // 3. Total Pendapatan Aplikasi (Semua uang masuk)
     const revenueAgg = await prisma.order.aggregate({
       _sum: { totalAmount: true },
       where: { status: "PAID" },
@@ -42,7 +38,6 @@ export const getAdminStats = async (
   }
 };
 
-// --- DASHBOARD SELLER (Toko Sendiri) ---
 export const getSellerStats = async (
   req: AuthRequest,
   res: Response
@@ -55,11 +50,10 @@ export const getSellerStats = async (
       return;
     }
 
-    // 1. Ambil semua item yang terjual dari toko ini (Status Order harus PAID)
     const soldItems = await prisma.orderItem.findMany({
       where: {
-        product: { sellerId: sellerId }, // Produk milik seller ini
-        order: { status: "PAID" }, // Order sudah dibayar
+        product: { sellerId: sellerId },
+        order: { status: "PAID" },
       },
       include: {
         product: true,
@@ -67,19 +61,16 @@ export const getSellerStats = async (
       },
     });
 
-    // 2. Hitung Total Pendapatan & Jumlah Terjual
     let totalRevenue = 0;
     let totalSoldItems = 0;
 
-    // Kita juga mau hitung produk mana yang paling laku (Top Products)
     const productSales: Record<string, number> = {};
 
     soldItems.forEach((item) => {
-      const revenue = item.price * item.quantity; // Harga saat beli * jumlah
+      const revenue = item.price * item.quantity;
       totalRevenue += revenue;
       totalSoldItems += item.quantity;
 
-      // Hitung per produk untuk Top Product
       const prodName = item.product.name;
       if (productSales[prodName]) {
         productSales[prodName] += item.quantity;
@@ -88,17 +79,15 @@ export const getSellerStats = async (
       }
     });
 
-    // 3. Format Data untuk Grafik (Top 5 Produk Terlaris)
-    // Mengubah object { "Sepatu": 10, "Baju": 5 } menjadi array [{name: "Sepatu", value: 10}, ...]
     const topProducts = Object.entries(productSales)
       .map(([name, sales]) => ({ name, sales }))
-      .sort((a, b) => b.sales - a.sales) // Urutkan dari yg terbesar
-      .slice(0, 5); // Ambil 5 teratas
+      .sort((a, b) => b.sales - a.sales)
+      .slice(0, 5);
 
     res.status(200).json({
       totalRevenue,
       totalSoldItems,
-      totalOrders: soldItems.length, // Sebenarnya ini jumlah baris item, bukan jumlah nota order, tapi cukup untuk gambaran
+      totalOrders: soldItems.length,
       topProducts,
     });
   } catch (error) {

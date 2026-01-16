@@ -13,7 +13,7 @@ const AdminVendors = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await api.get("/auth/users"); // Sesuai endpoint getAllUsers
+      const response = await api.get("/auth/users");
       setUsers(response.data);
     } catch (error) {
       console.error("Gagal load users", error);
@@ -40,14 +40,12 @@ const AdminVendors = () => {
       toast.success(
         `Vendor berhasil ${status === "APPROVED" ? "disetujui" : "ditolak"}`
       );
-      fetchUsers(); // Refresh tabel
+      fetchUsers();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Gagal verifikasi");
     }
   };
 
-  // Filter hanya user yang mengajukan diri (PENDING) atau sudah jadi SELLER
-  // Atau tampilkan semua tapi sorting Pending paling atas
   const pendingVendors = users.filter((u) => u.vendorStatus === "PENDING");
   const otherUsers = users.filter((u) => u.vendorStatus !== "PENDING");
 
@@ -55,7 +53,6 @@ const AdminVendors = () => {
     <div>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Kelola Vendor</h1>
 
-      {/* TABEL PENDING (Prioritas Utama) */}
       <div className="bg-white rounded-xl shadow-md border border-orange-100 overflow-hidden mb-8">
         <div className="bg-orange-50 px-6 py-4 border-b border-orange-100 flex items-center gap-2">
           <Clock className="w-5 h-5 text-orange-600" />
@@ -107,7 +104,6 @@ const AdminVendors = () => {
         )}
       </div>
 
-      {/* TABEL USER LAINNYA (Sekedar Info) */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
           <h2 className="font-bold text-gray-700">Daftar Pengguna Lainnya</h2>

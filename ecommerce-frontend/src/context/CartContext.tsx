@@ -27,7 +27,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       const response = await api.get("/cart");
-      // Hitung total quantity
       const total = response.data.reduce(
         (acc: number, item: any) => acc + item.quantity,
         0

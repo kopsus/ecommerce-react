@@ -15,14 +15,10 @@ import toast from "react-hot-toast";
 const SellerVouchers = () => {
   const [vouchers, setVouchers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // State Modal & Form
   const [showModal, setShowModal] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
-
-  // Form Inputs Sesuai Schema Kamu
   const [code, setCode] = useState("");
-  const [type, setType] = useState("FIXED"); // FIXED atau PERCENT
+  const [type, setType] = useState("FIXED");
   const [amount, setAmount] = useState("");
   const [minPurchase, setMinPurchase] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
@@ -33,7 +29,7 @@ const SellerVouchers = () => {
 
   const fetchVouchers = async () => {
     try {
-      const response = await api.get("/vouchers"); // Sesuaikan path
+      const response = await api.get("/vouchers");
       setVouchers(response.data);
     } catch (error) {
       console.error("Gagal load voucher", error);
@@ -47,13 +43,12 @@ const SellerVouchers = () => {
     setSubmitLoading(true);
 
     try {
-      // Kirim data sesuai schema backend kamu
       await api.post("/vouchers", {
         code,
         type,
         amount: Number(amount),
         minPurchase: Number(minPurchase),
-        expiresAt, // Format string YYYY-MM-DD dari input date sudah oke
+        expiresAt,
       });
 
       toast.success("Voucher berhasil dibuat!");
@@ -156,7 +151,6 @@ const SellerVouchers = () => {
         )}
       </div>
 
-      {/* MODAL FORM */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md animate-fade-in">
@@ -167,7 +161,6 @@ const SellerVouchers = () => {
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {/* KODE */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Kode Voucher
@@ -182,7 +175,6 @@ const SellerVouchers = () => {
                 />
               </div>
 
-              {/* TIPE & AMOUNT */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -215,7 +207,6 @@ const SellerVouchers = () => {
                 </div>
               </div>
 
-              {/* MIN PURCHASE & EXPIRY */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Minimal Belanja (Rp)

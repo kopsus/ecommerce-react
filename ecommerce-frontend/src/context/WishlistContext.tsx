@@ -33,7 +33,6 @@ export const WishlistProvider = ({
 
     try {
       const response = await api.get("/wishlist");
-      // Karena endpoint wishlist mengembalikan array items, kita cukup hitung length-nya
       setWishlistCount(response.data.length);
     } catch (error) {
       console.error("Gagal refresh wishlist count", error);

@@ -8,7 +8,7 @@ const RegisterPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("CUSTOMER"); // Default Customer
+  const [role, setRole] = useState("CUSTOMER");
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ const RegisterPage = () => {
       });
 
       toast.success("Registrasi berhasil! Silakan login.");
-      navigate("/login"); // Pindah ke login setelah sukses
+      navigate("/login");
     } catch (error: any) {
       console.error(error);
       const msg = error.response?.data?.message || "Registrasi gagal";

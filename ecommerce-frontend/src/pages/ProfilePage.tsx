@@ -35,8 +35,6 @@ const ProfilePage = () => {
       await api.post("/auth/apply-seller");
       toast.success("Pengajuan dikirim! Tunggu persetujuan Admin.");
 
-      // Update data user di local state biar UI langsung berubah
-      // (Kita "paksa" update state user sementara tanpa reload)
       if (user && user.token) {
         const updatedUser = { ...user, vendorStatus: "PENDING" as any };
 
@@ -64,7 +62,6 @@ const ProfilePage = () => {
 
       <main className="max-w-6xl mx-auto px-4 py-10">
         <div className="flex flex-col md:flex-row gap-8">
-          {/* SIDEBAR KIRI */}
           <aside className="w-full md:w-1/4">
             <div className="bg-white rounded-xl shadow-sm p-6 text-center border border-gray-100">
               <div className="w-24 h-24 bg-blue-100 rounded-full mx-auto flex items-center justify-center text-blue-600 mb-4">
@@ -149,7 +146,6 @@ const ProfilePage = () => {
             </div>
           </aside>
 
-          {/* KONTEN KANAN */}
           <section className="w-full md:w-3/4">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 min-h-125">
               {activeTab === "profile" && (
@@ -191,9 +187,6 @@ const ProfilePage = () => {
                         <span className="font-medium">Akun Terverifikasi</span>
                       </div>
                     </div>
-
-                    {/* Disini bisa ditambah tombol Edit Profil nanti jika backend sudah siap */}
-                    {/* <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 self-start">Simpan Perubahan</button> */}
                   </div>
                 </div>
               )}

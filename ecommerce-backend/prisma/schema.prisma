@@ -65,19 +65,15 @@ model CartItem {
   id        Int      @id @default(autoincrement())
   quantity  Int      @default(1)
   
-  // Milik User Siapa?
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
   
-  // Produk Apa?
   productId Int
   product   Product  @relation(fields: [productId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Mencegah duplikasi: Satu user tidak boleh punya baris double untuk produk yang sama.
-  // Kalau beli produk yg sama lagi, kita update quantity-nya, bukan buat baris baru.
   @@unique([userId, productId]) 
 }
 
@@ -89,7 +85,6 @@ enum OrderStatus {
   CANCELLED
 }
 
-// Model Order (Nota Pesanan)
 model Order {
   id          Int         @id @default(autoincrement())
   userId      Int
@@ -101,13 +96,11 @@ model Order {
   voucherId   Int?
   voucher     Voucher? @relation(fields: [voucherId], references: [id])
   
-  // Kita perlu simpan juga nilai diskonnya saat itu (snapshot)
   discountAmount Float @default(0)
   
   items       OrderItem[]
 }
 
-// Model OrderItem (Barang dalam Nota)
 model OrderItem {
   id        Int     @id @default(autoincrement())
   orderId   Int
@@ -115,13 +108,13 @@ model OrderItem {
   productId Int
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
-  price     Float   // Kita simpan harga SAAT BELI (penting jika harga produk berubah nanti)
+  price     Float  
 }
 
 model Review {
   id        Int      @id @default(autoincrement())
-  rating    Int      // Skala 1 - 5
-  comment   String?  // Boleh kosong kalau cuma mau kasih bintang
+  rating    Int     
+  comment   String?  
   
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
@@ -131,29 +124,27 @@ model Review {
 
   createdAt DateTime @default(now())
 
-  // Opsional: Satu user cuma boleh review 1x per produk
   @@unique([userId, productId])
 }
 
 enum DiscountType {
-  PERCENT   // Potongan persen (misal 10%)
-  FIXED     // Potongan harga tetap (misal Rp 10.000)
+  PERCENT   
+  FIXED    
 }
 
 model Voucher {
   id          Int          @id @default(autoincrement())
-  code        String       @unique // Kode unik, misal "MERDEKA45"
+  code        String       @unique 
   type        DiscountType
-  amount      Float        // Nilai potongan (bisa 10 (persen) atau 10000 (rupiah))
-  minPurchase Float?       // Minimal belanja biar bisa pakai (opsional)
-  expiresAt   DateTime     // Tanggal kadaluarsa
+  amount      Float        
+  minPurchase Float?      
+  expiresAt   DateTime    
   
   sellerId    Int
   seller      User         @relation(fields: [sellerId], references: [id])
 
   createdAt   DateTime     @default(now())
   
-  // Relasi ke Order (Satu voucher bisa dipakai di banyak order)
   orders      Order[]
 }
 
@@ -168,6 +159,5 @@ model Wishlist {
 
   createdAt DateTime @default(now())
 
-  // Mencegah duplikasi: Satu user cuma bisa wishlist produk yg sama 1x
   @@unique([userId, productId])
 }

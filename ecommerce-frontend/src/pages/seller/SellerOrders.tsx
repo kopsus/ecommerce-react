@@ -29,7 +29,7 @@ const SellerOrders = () => {
     try {
       await api.patch(`/orders/${orderId}/status`, { status: newStatus });
       toast.success(`Status berhasil diubah ke ${newStatus}`);
-      fetchOrders(); // Refresh data
+      fetchOrders();
     } catch {
       toast.error("Gagal update status");
     }
@@ -84,7 +84,6 @@ const SellerOrders = () => {
               key={order.id}
               className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
             >
-              {/* Header Order */}
               <div className="bg-gray-50 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b">
                 <div>
                   <p className="text-sm font-bold text-gray-800">
@@ -98,7 +97,6 @@ const SellerOrders = () => {
                 <div className="flex items-center gap-3">
                   {getStatusBadge(order.status)}
 
-                  {/* TOMBOL AKSI SELLER */}
                   {order.status === "PAID" && (
                     <button
                       onClick={() => handleUpdateStatus(order.id, "SHIPPED")}
@@ -118,7 +116,6 @@ const SellerOrders = () => {
                 </div>
               </div>
 
-              {/* List Item */}
               <div className="p-6">
                 {order.items.map((item: any) => (
                   <div

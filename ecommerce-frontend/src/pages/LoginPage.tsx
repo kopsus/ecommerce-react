@@ -18,23 +18,20 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // Tembak API Login Backend
       const response = await api.post("/auth/login", { email, password });
 
-      // Ambil data dari respon
       const { token, user } = response.data;
 
-      // Simpan ke Context & LocalStorage
       login(token, user);
 
       toast.success(`Selamat datang, ${user.name}!`);
 
       if (user.role === "ADMIN") {
-        navigate("/admin-dashboard"); // Admin lgsg ke markasnya
+        navigate("/admin-dashboard");
       } else if (user.role === "SELLER") {
-        navigate("/seller-dashboard"); // Seller lgsg ke tokonya (opsional)
+        navigate("/seller-dashboard");
       } else {
-        navigate("/"); // Customer lgsg belanja
+        navigate("/");
       }
     } catch (error: any) {
       console.error(error);

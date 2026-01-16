@@ -18,7 +18,6 @@ const SellerLayout = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // Proteksi: Hanya Seller yang boleh masuk sini
   if (!user || user.role !== "SELLER") {
     navigate("/login");
     return null;
@@ -38,7 +37,6 @@ const SellerLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      {/* SIDEBAR */}
       <aside
         className={`bg-white shadow-xl fixed z-20 h-screen transition-all duration-300 ${
           isSidebarOpen ? "w-64" : "w-20"
@@ -87,9 +85,7 @@ const SellerLayout = () => {
         </nav>
       </aside>
 
-      {/* KONTEN UTAMA */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header Mobile Toggle */}
         <header className="bg-white shadow-sm h-16 flex items-center px-4 lg:hidden">
           <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2">
             <Menu className="w-6 h-6" />
@@ -97,7 +93,6 @@ const SellerLayout = () => {
           <span className="font-bold ml-4">Seller Dashboard</span>
         </header>
 
-        {/* Isi Halaman Berubah-ubah di sini */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
           <Outlet />
         </main>

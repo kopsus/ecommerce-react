@@ -28,17 +28,13 @@ function App() {
             <Toaster position="top-right" />
 
             <Routes>
-              {/* Ganti element Home lama dengan HomePage baru */}
+              {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
-
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
-
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
-
               <Route path="/wishlist" element={<WishlistPage />} />
-
               <Route path="/profile" element={<ProfilePage />} />
 
               {/* Layout Seller */}
@@ -49,6 +45,7 @@ function App() {
                 <Route path="seller/vouchers" element={<SellerVouchers />} />
               </Route>
 
+              {/* Layout Admin */}
               <Route path="/" element={<AdminLayout />}>
                 <Route path="admin-dashboard" element={<AdminDashboard />} />
                 <Route path="admin/vendors" element={<AdminVendors />} />

@@ -8,7 +8,6 @@ import { authenticateToken } from "../middleware/authMiddleware";
 
 const router = Router();
 
-// Semua butuh login
 router.post("/", authenticateToken, addToWishlist);
 router.get("/", authenticateToken, getMyWishlist);
 router.delete("/:productId", authenticateToken, removeFromWishlist);

@@ -41,27 +41,25 @@ const CheckoutPage = () => {
   const handlePay = async () => {
     setLoading(true);
     try {
-      // 1. Buat Order di Backend
       const response = await api.post("/orders", {
-        voucherCode: voucherCode || undefined, // Kirim kode voucher jika ada
+        voucherCode: voucherCode || undefined,
       });
 
       const { midtransToken } = response.data;
 
-      // 2. Munculkan Popup Midtrans
       if (window.snap) {
         window.snap.pay(midtransToken, {
           onSuccess: async function (result: any) {
             try {
               await api.post("/orders/notification", {
                 order_id: result.order_id,
-                transaction_status: "settlement", // Kata kunci Midtrans untuk "Lunas"
+                transaction_status: "settlement",
                 fraud_status: "accept",
               });
 
               toast.success("Pembayaran Berhasil & Terverifikasi!");
-              refreshCart(); // Reset keranjang
-              navigate("/profile"); // Arahkan ke halaman Profile/History
+              refreshCart();
+              navigate("/profile");
             } catch (error) {
               console.error("Gagal update status otomatis:", error);
               toast.success(
@@ -103,7 +101,6 @@ const CheckoutPage = () => {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* List Barang */}
           <div className="md:col-span-2 space-y-4">
             <div className="bg-white p-6 rounded-xl shadow-sm">
               <h2 className="font-semibold mb-4">Barang yang dibeli</h2>
@@ -134,7 +131,6 @@ const CheckoutPage = () => {
             </div>
           </div>
 
-          {/* Ringkasan & Bayar */}
           <div className="md:col-span-1">
             <div className="bg-white p-6 rounded-xl shadow-sm sticky top-24">
               <h2 className="font-semibold mb-4">Ringkasan Pembayaran</h2>
@@ -144,15 +140,12 @@ const CheckoutPage = () => {
                   <span>Subtotal</span>
                   <span>{formatRupiah(subtotal)}</span>
                 </div>
-                {/* Kalau mau hitung diskon real-time butuh API cek voucher, 
-                    disini kita simpelkan dulu transaksinya */}
                 <div className="flex justify-between font-bold text-gray-900 pt-2 border-t">
                   <span>Total Tagihan</span>
                   <span>{formatRupiah(subtotal)}</span>
                 </div>
               </div>
 
-              {/* Input Voucher */}
               <div className="mb-6">
                 <label className="text-xs font-semibold text-gray-500 uppercase">
                   Kode Voucher

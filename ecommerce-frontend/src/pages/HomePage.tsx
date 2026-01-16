@@ -25,7 +25,6 @@ const HomePage = () => {
     }
   };
 
-  // Filter produk berdasarkan search
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -34,7 +33,6 @@ const HomePage = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      {/* Hero / Banner Area */}
       <div className="bg-blue-600 text-white py-12 px-4 mb-8">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">Temukan Barang Impianmu</h1>
@@ -42,7 +40,6 @@ const HomePage = () => {
             Belanja mudah, aman, dan terpercaya.
           </p>
 
-          {/* Search Bar */}
           <div className="max-w-lg mx-auto relative">
             <Search className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
             <input
@@ -56,7 +53,6 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Product Grid */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         {loading ? (
           <div className="text-center py-20">

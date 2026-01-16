@@ -14,7 +14,6 @@ const CartPage = () => {
   const { refreshCart } = UseCart();
   const navigate = useNavigate();
 
-  // Ambil data keranjang saat halaman dibuka
   useEffect(() => {
     fetchCart();
   }, []);
@@ -36,20 +35,18 @@ const CartPage = () => {
     change: number
   ) => {
     const newQty = currentQty + change;
-    if (newQty < 1) return; // Minimal 1
+    if (newQty < 1) return;
 
     try {
-      // Panggil endpoint PUT yang baru kita buat di backend
       await api.put(`/cart/${id}`, { quantity: newQty });
 
-      // Update UI Frontend secara manual biar cepat (Optimistic UI)
       setCartItems((prev) =>
         prev.map((item) =>
           item.id === id ? { ...item, quantity: newQty } : item
         )
       );
 
-      refreshCart(); // Update angka di navbar
+      refreshCart();
     } catch {
       toast.error("Gagal update jumlah");
     }
@@ -59,20 +56,13 @@ const CartPage = () => {
     try {
       await api.delete(`/cart/${id}`);
       setCartItems((prev) => prev.filter((item) => item.id !== id));
-      refreshCart(); // Update navbar
+      refreshCart();
       toast.success("Item dihapus");
     } catch {
       toast.error("Gagal menghapus item");
     }
   };
 
-  // Update Quantity (Logic UI saja, backend update quantity belum kita buat spesifik endpointnya,
-  // biasanya add to cart lagi dgn quantity berbeda.
-  // TAPI untuk simplifikasi sekarang: Kita hapus item lalu add ulang, atau biarkan statis dulu).
-  // *CATATAN*: Agar tutorial tidak terlalu panjang, kita skip fitur update quantity +/- di halaman cart dulu.
-  // User harus hapus dan add lagi dari depan. (Next improvement).
-
-  // Hitung Total Harga
   const totalPrice = cartItems.reduce((total, item) => {
     return total + item.product.price * item.quantity;
   }, 0);
@@ -106,7 +96,6 @@ const CartPage = () => {
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* List Barang (Kiri) */}
             <div className="grow">
               <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                 {cartItems.map((item) => (
@@ -114,7 +103,6 @@ const CartPage = () => {
                     key={item.id}
                     className="p-6 border-b border-gray-100 last:border-0 flex items-center gap-6"
                   >
-                    {/* Gambar Kecil */}
                     <img
                       src={
                         item.product.image
@@ -125,7 +113,6 @@ const CartPage = () => {
                       className="w-20 h-20 object-cover rounded-lg bg-gray-100"
                     />
 
-                    {/* Info */}
                     <div className="grow">
                       <h3 className="font-semibold text-gray-800 text-lg">
                         {item.product.name}
@@ -134,7 +121,6 @@ const CartPage = () => {
                         {formatRupiah(item.product.price)}
                       </p>
 
-                      {/* Kontrol Quantity */}
                       <div className="flex items-center mt-2 gap-3">
                         <button
                           onClick={() =>
@@ -159,7 +145,6 @@ const CartPage = () => {
                       </div>
                     </div>
 
-                    {/* Tombol Hapus */}
                     <button
                       onClick={() => handleRemove(item.id)}
                       className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition"
@@ -171,7 +156,6 @@ const CartPage = () => {
               </div>
             </div>
 
-            {/* Ringkasan Belanja (Kanan) */}
             <div className="lg:w-1/3">
               <div className="bg-white p-6 rounded-xl shadow-sm sticky top-24">
                 <h3 className="text-lg font-bold text-gray-800 mb-4">

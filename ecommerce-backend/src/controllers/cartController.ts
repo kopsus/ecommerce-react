@@ -2,7 +2,6 @@ import { Response } from "express";
 import { AuthRequest } from "../middleware/authMiddleware";
 import { prisma } from "../db";
 
-// --- TAMBAH KE KERANJANG ---
 export const addToCart = async (
   req: AuthRequest,
   res: Response
@@ -11,14 +10,11 @@ export const addToCart = async (
     const { productId, quantity } = req.body;
     const userId = req.user?.userId;
 
-    // Pastikan quantity minimal 1
     const qty = quantity || 1;
 
-    // 1. Cek apakah barang ini sudah ada di keranjang user?
     const existingItem = await prisma.cartItem.findUnique({
       where: {
         userId_productId: {
-          // Ini bisa dipakai karena kita set @@unique di schema
           userId: userId,
           productId: Number(productId),
         },
@@ -26,7 +22,6 @@ export const addToCart = async (
     });
 
     if (existingItem) {
-      // 2. Kalau sudah ada, update quantity-nya saja
       const updatedItem = await prisma.cartItem.update({
         where: { id: existingItem.id },
         data: { quantity: existingItem.quantity + qty },
@@ -36,7 +31,6 @@ export const addToCart = async (
         cartItem: updatedItem,
       });
     } else {
-      // 3. Kalau belum ada, buat item baru
       const newItem = await prisma.cartItem.create({
         data: {
           userId: userId,
@@ -58,8 +52,8 @@ export const updateCartItem = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params; // ID CartItem
-    const { quantity } = req.body; // Quantity BARU (Absolute, misal: 5)
+    const { id } = req.params;
+    const { quantity } = req.body;
 
     if (quantity < 1) {
       res.status(400).json({ message: "Jumlah minimal 1" });
@@ -78,7 +72,6 @@ export const updateCartItem = async (
   }
 };
 
-// --- LIHAT ISI KERANJANG ---
 export const getCart = async (
   req: AuthRequest,
   res: Response
@@ -89,7 +82,7 @@ export const getCart = async (
     const cartItems = await prisma.cartItem.findMany({
       where: { userId },
       include: {
-        product: true, // Kita butuh data nama & harga produknya, bukan cuma ID doang
+        product: true,
       },
     });
 
@@ -99,19 +92,18 @@ export const getCart = async (
   }
 };
 
-// --- HAPUS DARI KERANJANG ---
 export const removeFromCart = async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params; // ID CartItem
+    const { id } = req.params;
     const userId = req.user?.userId;
 
     await prisma.cartItem.deleteMany({
       where: {
         id: Number(id),
-        userId: userId, // Pastikan yang dihapus adalah milik user yg login
+        userId: userId,
       },
     });
 

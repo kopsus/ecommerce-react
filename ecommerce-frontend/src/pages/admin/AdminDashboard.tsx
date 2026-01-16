@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import { formatRupiah } from "../../utils/format";
-import { Users, DollarSign, Store } from "lucide-react";
+import { Users, DollarSign, Store, ShieldCheck } from "lucide-react";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState<any>(null);
@@ -29,7 +29,6 @@ const AdminDashboard = () => {
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Overview Sistem</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total User */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex justify-between items-start">
             <div>
@@ -44,7 +43,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Total Seller */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex justify-between items-start">
             <div>
@@ -59,7 +57,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Pending Vendors */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex justify-between items-start">
             <div>
@@ -74,7 +71,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Revenue */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex justify-between items-start">
             <div>
@@ -92,8 +88,5 @@ const AdminDashboard = () => {
     </div>
   );
 };
-
-// Import ShieldCheck manual karena belum ada di atas
-import { ShieldCheck } from "lucide-react";
 
 export default AdminDashboard;

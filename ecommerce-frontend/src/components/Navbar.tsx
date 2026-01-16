@@ -19,7 +19,6 @@ const Navbar = () => {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          {/* Logo Kiri */}
           <Link
             to="/"
             className="flex items-center gap-2 text-blue-600 font-bold text-xl"
@@ -28,13 +27,9 @@ const Navbar = () => {
             <span>TokoKita</span>
           </Link>
 
-          {/* Menu Kanan */}
           <div className="flex items-center gap-6">
             {user ? (
               <>
-                {/* --- LOGIC NAVBAR BERDASARKAN ROLE --- */}
-
-                {/* 1. JIKA ADMIN: Tampilkan Tombol Dashboard Saja */}
                 {user.role === "ADMIN" ? (
                   <Link
                     to="/admin-dashboard"
@@ -44,7 +39,6 @@ const Navbar = () => {
                     <span className="text-sm font-bold">Admin Panel</span>
                   </Link>
                 ) : (
-                  // 2. JIKA BUKAN ADMIN (Customer/Seller): Tampilkan Keranjang & Wishlist
                   <>
                     <Link
                       to="/wishlist"
@@ -73,9 +67,7 @@ const Navbar = () => {
                   </>
                 )}
 
-                {/* Info User & Logout (Muncul untuk semua role) */}
                 <div className="flex items-center gap-3 border-l pl-4 ml-2">
-                  {/* Link Nama User: Kalau Admin ke Dashboard, kalau user lain ke Profile */}
                   <Link
                     to={user.role === "ADMIN" ? "/admin-dashboard" : "/profile"}
                     className="text-right hidden md:block hover:opacity-80 transition"
@@ -96,7 +88,6 @@ const Navbar = () => {
                 </div>
               </>
             ) : (
-              // Kalau Belum Login
               <div className="flex gap-4">
                 <Link
                   to="/login"

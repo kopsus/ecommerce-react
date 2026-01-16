@@ -6,5 +6,4 @@ export const formatRupiah = (number: number) => {
   }).format(number);
 };
 
-// Base URL untuk gambar (sesuaikan port backend kamu)
 export const IMAGE_URL = "http://localhost:5000/uploads/";

@@ -9,10 +9,9 @@ import { authenticateToken } from "../middleware/authMiddleware";
 
 const router = Router();
 
-// Semua rute di sini WAJIB login (ada authenticateToken)
-router.post("/", authenticateToken, addToCart); // Tambah barang
-router.get("/", authenticateToken, getCart); // Lihat keranjang
-router.delete("/:id", authenticateToken, removeFromCart); // Hapus item (berdasarkan ID cartItem)
+router.post("/", authenticateToken, addToCart);
+router.get("/", authenticateToken, getCart);
+router.delete("/:id", authenticateToken, removeFromCart);
 router.put("/:id", authenticateToken, updateCartItem);
 
 export default router;

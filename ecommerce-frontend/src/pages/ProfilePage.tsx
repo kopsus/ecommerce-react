@@ -2,23 +2,61 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import OrderHistory from "../components/OrderHistory";
 import { UseAuth } from "../context/AuthContext";
-import { User, ShoppingBag, LogOut, Settings, ShieldCheck } from "lucide-react";
+import {
+  User,
+  ShoppingBag,
+  LogOut,
+  Settings,
+  ShieldCheck,
+  Store,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import api from "../services/api";
 
 const ProfilePage = () => {
-  const { user, logout } = UseAuth();
+  const { user, logout, login } = UseAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"profile" | "orders">("profile");
+  const [loadingUpgrade, setLoadingUpgrade] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
+  const handleApplySeller = async () => {
+    if (!confirm("Apakah Anda yakin ingin mendaftar sebagai Penjual?")) return;
+
+    setLoadingUpgrade(true);
+    try {
+      await api.post("/auth/apply-seller");
+      toast.success("Pengajuan dikirim! Tunggu persetujuan Admin.");
+
+      // Update data user di local state biar UI langsung berubah
+      // (Kita "paksa" update state user sementara tanpa reload)
+      if (user && user.token) {
+        const updatedUser = { ...user, vendorStatus: "PENDING" as any };
+
+        const token = localStorage.getItem("token") || "";
+
+        login(token, updatedUser);
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Gagal mengajukan.");
+    } finally {
+      setLoadingUpgrade(false);
+    }
+  };
+
   if (!user) {
     navigate("/login");
     return null;
   }
+
+  const status = user.vendorStatus || "NONE";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -46,6 +84,39 @@ const ProfilePage = () => {
               >
                 {user.role}
               </span>
+
+              <div className="mt-6 border-t pt-6">
+                {user.role === "CUSTOMER" && status === "NONE" && (
+                  <button
+                    onClick={handleApplySeller}
+                    disabled={loadingUpgrade}
+                    className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition shadow-md font-medium text-sm"
+                  >
+                    <Store className="w-4 h-4" /> Daftar Jadi Seller
+                  </button>
+                )}
+
+                {user.role === "CUSTOMER" && status === "PENDING" && (
+                  <div className="w-full flex items-center justify-center gap-2 bg-yellow-100 text-yellow-700 px-4 py-3 rounded-lg border border-yellow-200 text-sm font-medium">
+                    <Clock className="w-4 h-4" /> Menunggu Verifikasi
+                  </div>
+                )}
+
+                {user.role === "CUSTOMER" && status === "REJECTED" && (
+                  <div className="w-full flex items-center justify-center gap-2 bg-red-100 text-red-700 px-4 py-3 rounded-lg border border-red-200 text-sm font-medium">
+                    <AlertCircle className="w-4 h-4" /> Pengajuan Ditolak
+                  </div>
+                )}
+
+                {user.role === "SELLER" && (
+                  <button
+                    onClick={() => navigate("/seller-dashboard")} // Nanti kita buat rute ini
+                    className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition shadow-md font-medium text-sm"
+                  >
+                    <Store className="w-4 h-4" /> Dashboard Toko
+                  </button>
+                )}
+              </div>
 
               <div className="mt-8 space-y-2">
                 <button

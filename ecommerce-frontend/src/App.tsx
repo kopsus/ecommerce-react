@@ -15,6 +15,9 @@ import SellerDashboard from "./pages/seller/SellerDashboard";
 import SellerProducts from "./pages/seller/SellerProducts";
 import SellerOrders from "./pages/seller/SellerOrders";
 import SellerVouchers from "./pages/seller/SellerVoucher";
+import AdminVendors from "./pages/admin/AdminVendors";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminLayout from "./layout/AdminLayout";
 
 function App() {
   return (
@@ -44,6 +47,11 @@ function App() {
                 <Route path="seller/products" element={<SellerProducts />} />
                 <Route path="seller/orders" element={<SellerOrders />} />
                 <Route path="seller/vouchers" element={<SellerVouchers />} />
+              </Route>
+
+              <Route path="/" element={<AdminLayout />}>
+                <Route path="admin-dashboard" element={<AdminDashboard />} />
+                <Route path="admin/vendors" element={<AdminVendors />} />
               </Route>
 
               <Route path="*" element={<Navigate to="/" />} />

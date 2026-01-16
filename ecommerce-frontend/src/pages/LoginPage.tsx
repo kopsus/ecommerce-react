@@ -27,8 +27,15 @@ const LoginPage = () => {
       // Simpan ke Context & LocalStorage
       login(token, user);
 
-      toast.success("Login berhasil! Selamat datang.");
-      navigate("/"); // Pindah ke halaman utama (Home)
+      toast.success(`Selamat datang, ${user.name}!`);
+
+      if (user.role === "ADMIN") {
+        navigate("/admin-dashboard"); // Admin lgsg ke markasnya
+      } else if (user.role === "SELLER") {
+        navigate("/seller-dashboard"); // Seller lgsg ke tokonya (opsional)
+      } else {
+        navigate("/"); // Customer lgsg belanja
+      }
     } catch (error: any) {
       console.error(error);
       const msg = error.response?.data?.message || "Login gagal";

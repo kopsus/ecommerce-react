@@ -149,44 +149,41 @@ export const applyAsSeller = async (
   }
 };
 
-// --- VERIFIKASI VENDOR (Khusus Admin) ---
 export const verifyVendor = async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const { userId, action } = req.body; // action: 'APPROVE' atau 'REJECT'
-    const adminRole = req.user?.role;
-
-    if (adminRole !== "ADMIN") {
-      res.status(403).json({ message: "Hanya Admin yang boleh verifikasi" });
+    if (req.user?.role !== "ADMIN") {
+      res.status(403).json({ message: "Akses ditolak" });
       return;
     }
 
-    if (action === "APPROVE") {
-      await prisma.user.update({
-        where: { id: Number(userId) },
-        data: {
-          role: "SELLER",
-          vendorStatus: "APPROVED",
-        },
-      });
-      res.status(200).json({ message: "User berhasil di-upgrade jadi SELLER" });
-    } else if (action === "REJECT") {
-      await prisma.user.update({
-        where: { id: Number(userId) },
-        data: { vendorStatus: "REJECTED" },
-      });
-      res.status(200).json({ message: "Pengajuan ditolak" });
-    } else {
-      res.status(400).json({ message: "Action harus APPROVE atau REJECT" });
+    const { id } = req.params; // ID User yang mau diverifikasi
+    const { status } = req.body; // 'APPROVED' atau 'REJECTED'
+
+    if (!["APPROVED", "REJECTED"].includes(status)) {
+      res.status(400).json({ message: "Status tidak valid" });
+      return;
     }
+
+    // Logic: Jika APPROVED, ubah role jadi SELLER juga
+    const updateData: any = { vendorStatus: status };
+    if (status === "APPROVED") {
+      updateData.role = "SELLER";
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: Number(id) },
+      data: updateData,
+    });
+
+    res.status(200).json({ message: `Vendor ${status}`, user: updatedUser });
   } catch (error) {
-    res.status(500).json({ message: "Gagal memproses verifikasi", error });
+    res.status(500).json({ message: "Gagal verifikasi vendor", error });
   }
 };
 
-// --- LIHAT LIST PENGAJUAN (Khusus Admin) ---
 export const getPendingVendors = async (
   req: AuthRequest,
   res: Response
@@ -199,5 +196,33 @@ export const getPendingVendors = async (
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: "Error server", error });
+  }
+};
+
+export const getAllUsers = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    if (req.user?.role !== "ADMIN") {
+      res.status(403).json({ message: "Akses ditolak" });
+      return;
+    }
+
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        vendorStatus: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Gagal ambil users", error });
   }
 };

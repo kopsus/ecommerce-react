@@ -6,6 +6,7 @@ import {
   verifyVendor,
   getPendingVendors,
   applyAsSeller,
+  getAllUsers,
 } from "../controllers/authController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
@@ -17,6 +18,7 @@ router.get("/profile", authenticateToken, getProfile);
 
 router.post("/apply-seller", authenticateToken, applyAsSeller);
 router.get("/pending-vendors", authenticateToken, getPendingVendors);
-router.post("/verify-vendor", authenticateToken, verifyVendor);
+router.patch("/verify-vendor/:id", authenticateToken, verifyVendor);
+router.get("/users", authenticateToken, getAllUsers);
 
 export default router;

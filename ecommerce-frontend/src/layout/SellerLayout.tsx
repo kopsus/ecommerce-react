@@ -40,7 +40,7 @@ const SellerLayout = () => {
     <div className="min-h-screen bg-gray-100 flex">
       {/* SIDEBAR */}
       <aside
-        className={`bg-white shadow-xl fixed z-20 h-full transition-all duration-300 ${
+        className={`bg-white shadow-xl fixed z-20 h-screen transition-all duration-300 ${
           isSidebarOpen ? "w-64" : "w-20"
         } lg:relative`}
       >

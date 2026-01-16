@@ -53,6 +53,31 @@ export const addToCart = async (
   }
 };
 
+export const updateCartItem = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params; // ID CartItem
+    const { quantity } = req.body; // Quantity BARU (Absolute, misal: 5)
+
+    if (quantity < 1) {
+      res.status(400).json({ message: "Jumlah minimal 1" });
+      return;
+    }
+
+    const updatedItem = await prisma.cartItem.update({
+      where: { id: Number(id) },
+      data: { quantity: Number(quantity) },
+      include: { product: true },
+    });
+
+    res.status(200).json({ message: "Jumlah diupdate", item: updatedItem });
+  } catch (error) {
+    res.status(500).json({ message: "Gagal update keranjang", error });
+  }
+};
+
 // --- LIHAT ISI KERANJANG ---
 export const getCart = async (
   req: AuthRequest,

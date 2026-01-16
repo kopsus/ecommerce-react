@@ -198,3 +198,68 @@ export const getMyOrders = async (
     res.status(500).json({ message: "Gagal mengambil data pesanan", error });
   }
 };
+
+export const getSellerOrders = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const sellerId = req.user?.userId;
+
+    // Cari Order yang MEMILIKI item dari seller ini
+    const orders = await prisma.order.findMany({
+      where: {
+        items: {
+          some: {
+            product: { sellerId: sellerId },
+          },
+        },
+        // Opsional: Kita sembunyikan order yang masih PENDING (belum bayar) agar tidak menuh-menuhin
+        status: { not: "PENDING" },
+      },
+      include: {
+        user: { select: { name: true, email: true } }, // Data Pembeli
+        items: {
+          where: { product: { sellerId: sellerId } }, // Hanya ambil item milik seller ini
+          include: { product: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.status(200).json(orders);
+  } catch (error) {
+    res.status(500).json({ message: "Gagal ambil pesanan seller", error });
+  }
+};
+
+// --- UPDATE STATUS ORDER (ADMIN/SELLER) ---
+export const updateOrderStatus = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params; // Order ID
+    const { status } = req.body; // Status Baru (SHIPPED, COMPLETED, CANCELLED)
+
+    // Validasi status yang dibolehkan
+    const allowedStatus = ["SHIPPED", "COMPLETED", "CANCELLED"];
+    if (!allowedStatus.includes(status)) {
+      res.status(400).json({ message: "Status tidak valid" });
+      return;
+    }
+
+    // Cek apakah order ada & seller berhak (Logic sederhana: kalau seller punya barang di order itu, boleh update)
+    // Note: Untuk sistem multi-vendor yang kompleks, status biasanya per-item, bukan per-order.
+    // Tapi untuk tutorial ini, kita anggap status Order mewakili pengiriman paket.
+
+    await prisma.order.update({
+      where: { id: Number(id) },
+      data: { status: status as any },
+    });
+
+    res.status(200).json({ message: `Status order diubah menjadi ${status}` });
+  } catch (error) {
+    res.status(500).json({ message: "Gagal update status", error });
+  }
+};

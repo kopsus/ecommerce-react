@@ -9,6 +9,7 @@ import {
   LogOut,
   Menu,
   X,
+  ClipboardList,
 } from "lucide-react";
 
 const SellerLayout = () => {
@@ -31,6 +32,7 @@ const SellerLayout = () => {
   const menuItems = [
     { name: "Dashboard", path: "/seller-dashboard", icon: LayoutDashboard },
     { name: "Produk Saya", path: "/seller/products", icon: Package },
+    { name: "Pesanan Masuk", path: "/seller/orders", icon: ClipboardList },
     { name: "Kelola Voucher", path: "/seller/vouchers", icon: Ticket },
   ];
 

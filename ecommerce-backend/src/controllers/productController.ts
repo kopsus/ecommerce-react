@@ -1,6 +1,15 @@
 import { Response } from "express";
 import { AuthRequest } from "../middleware/authMiddleware";
 import { prisma } from "../db";
+import fs from "fs";
+import path from "path";
+
+const deleteImageFile = (filename: string) => {
+  const filePath = path.join(__dirname, "../../uploads", filename);
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+};
 
 export const createProduct = async (
   req: AuthRequest,
@@ -70,45 +79,53 @@ export const updateProduct = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params; // Ambil ID produk dari URL
+    const { id } = req.params;
     const { name, description, price, stock } = req.body;
-    const userId = req.user?.userId;
+    const image = req.file?.filename; // Nama file baru (jika ada)
 
-    // 1. Cek dulu apakah produknya ada?
-    const product = await prisma.product.findUnique({
+    // 1. Cek produk lama
+    const oldProduct = await prisma.product.findUnique({
       where: { id: Number(id) },
     });
-
-    if (!product) {
+    if (!oldProduct) {
       res.status(404).json({ message: "Produk tidak ditemukan" });
       return;
     }
 
-    // 2. Cek apakah yang mau edit adalah pemilik produknya?
-    if (product.sellerId !== userId) {
-      res
-        .status(403)
-        .json({ message: "Anda tidak memiliki izin mengedit produk ini" });
+    // 2. Cek kepemilikan
+    if (oldProduct.sellerId !== req.user?.userId) {
+      res.status(403).json({ message: "Bukan produk anda" });
       return;
     }
 
-    // 3. Lakukan update
-    const updatedProduct = await prisma.product.update({
+    // 3. Logic Ganti Foto
+    let updatedData: any = {
+      name,
+      description,
+      price: Number(price),
+      stock: Number(stock),
+    };
+
+    if (image) {
+      // Jika user upload foto baru:
+      // a. Hapus foto lama dari folder
+      if (oldProduct.image) {
+        deleteImageFile(oldProduct.image);
+      }
+      // b. Masukkan nama foto baru ke database
+      updatedData.image = image;
+    }
+
+    // 4. Update Database
+    const product = await prisma.product.update({
       where: { id: Number(id) },
-      data: {
-        name,
-        description,
-        price: price ? parseFloat(price) : undefined, // Update jika ada data baru
-        stock: stock ? parseInt(stock) : undefined,
-      },
+      data: updatedData,
     });
 
-    res.status(200).json({
-      message: "Produk berhasil diperbarui",
-      product: updatedProduct,
-    });
+    res.status(200).json(product);
   } catch (error) {
-    res.status(500).json({ message: "Gagal mengupdate produk", error });
+    console.error(error);
+    res.status(500).json({ message: "Gagal update produk", error });
   }
 };
 
@@ -118,11 +135,11 @@ export const deleteProduct = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const userId = req.user?.userId;
 
-    // 1. Cek produk ada atau tidak
+    // 1. Cek produk
     const product = await prisma.product.findUnique({
       where: { id: Number(id) },
+      include: { _count: { select: { orderItems: true } } }, // Cek apakah ada order
     });
 
     if (!product) {
@@ -130,21 +147,31 @@ export const deleteProduct = async (
       return;
     }
 
-    // 2. Cek kepemilikan
-    if (product.sellerId !== userId) {
-      res
-        .status(403)
-        .json({ message: "Anda tidak berhak menghapus produk ini" });
+    if (product.sellerId !== req.user?.userId) {
+      res.status(403).json({ message: "Akses ditolak" });
       return;
     }
 
-    // 3. Hapus produk
-    await prisma.product.delete({
-      where: { id: Number(id) },
-    });
+    // 2. Proteksi: Jangan hapus jika sudah pernah terjual
+    if (product._count.orderItems > 0) {
+      res.status(400).json({
+        message:
+          "Produk tidak bisa dihapus karena sudah ada riwayat transaksi. Edit stok jadi 0 saja.",
+      });
+      return;
+    }
 
-    res.status(200).json({ message: "Produk berhasil dihapus" });
+    // 3. Hapus File Gambar Fisik
+    if (product.image) {
+      deleteImageFile(product.image);
+    }
+
+    // 4. Hapus dari Database
+    await prisma.product.delete({ where: { id: Number(id) } });
+
+    res.status(200).json({ message: "Produk dan gambar berhasil dihapus" });
   } catch (error) {
-    res.status(500).json({ message: "Gagal menghapus produk", error });
+    console.error(error);
+    res.status(500).json({ message: "Gagal hapus produk", error });
   }
 };

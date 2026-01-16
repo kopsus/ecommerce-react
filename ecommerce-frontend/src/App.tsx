@@ -12,6 +12,7 @@ import WishlistPage from "./pages/WishlistPage";
 import { WishlistProvider } from "./context/WishlistContext";
 import SellerLayout from "./layout/SellerLayout";
 import SellerDashboard from "./pages/seller/SellerDashboard";
+import SellerProducts from "./pages/seller/SellerProducts";
 
 function App() {
   return (
@@ -38,7 +39,7 @@ function App() {
               {/* Layout Seller */}
               <Route path="/" element={<SellerLayout />}>
                 <Route path="seller-dashboard" element={<SellerDashboard />} />
-                {/* Nanti tambah route produk dan voucher disini */}
+                <Route path="seller/products" element={<SellerProducts />} />
               </Route>
 
               <Route path="*" element={<Navigate to="/" />} />

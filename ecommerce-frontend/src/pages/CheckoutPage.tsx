@@ -59,7 +59,7 @@ const CheckoutPage = () => {
                 fraud_status: "accept",
               });
 
-              toast.success("Pembayaran Berhasil & Terverifikasi! 🎉");
+              toast.success("Pembayaran Berhasil & Terverifikasi!");
               refreshCart(); // Reset keranjang
               navigate("/profile"); // Arahkan ke halaman Profile/History
             } catch (error) {
@@ -71,7 +71,7 @@ const CheckoutPage = () => {
             }
           },
           onPending: function () {
-            toast("Menunggu pembayaran...", { icon: "⏳" });
+            toast("Menunggu pembayaran...");
             refreshCart();
             navigate("/orders");
           },

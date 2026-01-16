@@ -56,3 +56,33 @@ export const getMyVouchers = async (
     res.status(500).json({ message: "Error server", error });
   }
 };
+
+export const deleteVoucher = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const sellerId = req.user?.userId;
+
+    // Cek dulu apakah voucher ada dan milik seller yang request
+    const voucher = await prisma.voucher.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!voucher) {
+      res.status(404).json({ message: "Voucher tidak ditemukan" });
+      return;
+    }
+
+    if (voucher.sellerId !== sellerId) {
+      res.status(403).json({ message: "Bukan voucher milik anda" });
+      return;
+    }
+
+    await prisma.voucher.delete({ where: { id: Number(id) } });
+    res.status(200).json({ message: "Voucher berhasil dihapus" });
+  } catch (error) {
+    res.status(500).json({ message: "Gagal hapus voucher", error });
+  }
+};

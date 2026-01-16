@@ -233,7 +233,6 @@ export const getSellerOrders = async (
   }
 };
 
-// --- UPDATE STATUS ORDER (ADMIN/SELLER) ---
 export const updateOrderStatus = async (
   req: AuthRequest,
   res: Response

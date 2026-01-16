@@ -72,6 +72,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         id: user.id,
         name: user.name,
         role: user.role,
+        vendorStatus: user.vendorStatus,
       },
     });
   } catch (error) {
@@ -89,7 +90,13 @@ export const getProfile = async (
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, name: true, email: true, role: true }, // Jangan tampilkan password!
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        vendorStatus: true,
+      }, // Jangan tampilkan password!
     });
 
     if (!user) {

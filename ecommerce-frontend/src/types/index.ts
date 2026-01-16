@@ -3,8 +3,9 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  token?: string;
   role: "ADMIN" | "CUSTOMER" | "SELLER";
-  vendorStatus?: "NONE" | "PENDING" | "APPROVED" | "REJECTED";
+  vendorStatus: "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 }
 
 // Tipe data respon Login

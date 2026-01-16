@@ -35,3 +35,19 @@ export interface CartItem {
   quantity: number;
   product: Product;
 }
+
+export interface OrderItem {
+  id: number;
+  productId: number;
+  quantity: number;
+  price: number;
+  product: Product;
+}
+
+export interface Order {
+  id: number;
+  totalAmount: number;
+  status: "PENDING" | "PAID" | "SHIPPED" | "COMPLETED" | "CANCELLED";
+  createdAt: string;
+  items: OrderItem[];
+}

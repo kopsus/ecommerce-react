@@ -5,7 +5,7 @@ import { ShoppingCart, Heart, Loader2 } from "lucide-react";
 import api from "../services/api";
 import { useState } from "react";
 import { UseAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UseCart } from "../context/CartContext";
 import { UseWishlist } from "../context/WishlistContext";
 
@@ -21,7 +21,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const { refreshWishlist } = UseWishlist();
 
   const handleAddToCart = async () => {
-    // 1. Cek Login: Kalau belum login, lempar ke halaman login
     if (!user) {
       toast.error("Silakan login untuk belanja");
       navigate("/login");
@@ -30,12 +29,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
     setLoading(true);
     try {
-      // 2. Tembak API Backend
       await api.post("/cart", {
         productId: product.id,
         quantity: 1,
       });
-      toast.success("Masuk keranjang! 🛒");
+      toast.success("Masuk keranjang!");
       refreshCart();
     } catch (error: any) {
       console.error(error);
@@ -69,29 +67,33 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition duration-300 border border-gray-100 overflow-hidden flex flex-col h-full">
-      <div className="h-48 w-full bg-gray-100 relative overflow-hidden group">
-        <img
-          src={
-            product.image
-              ? `${IMAGE_URL}${product.image}`
-              : "https://via.placeholder.com/300"
-          }
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
-        />
-        <button
-          onClick={handleAddToWishlist}
-          className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition transform translate-y-2 group-hover:translate-y-0 text-gray-400 hover:text-red-500"
-        >
-          <Heart className="h-5 w-5" />
-        </button>
-      </div>
+      <Link to={`/product/${product.id}`}>
+        <div className="h-48 w-full bg-gray-100 relative overflow-hidden group">
+          <img
+            src={
+              product.image
+                ? `${IMAGE_URL}${product.image}`
+                : "https://via.placeholder.com/300"
+            }
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+          />
+          <button
+            onClick={handleAddToWishlist}
+            className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition transform translate-y-2 group-hover:translate-y-0 text-gray-400 hover:text-red-500"
+          >
+            <Heart className="h-5 w-5" />
+          </button>
+        </div>
+      </Link>
 
       <div className="p-4 flex flex-col grow">
         <div className="grow">
-          <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 mb-1">
-            {product.name}
-          </h3>
+          <Link to={`/product/${product.id}`}>
+            <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 mb-1">
+              {product.name}
+            </h3>
+          </Link>
           <p className="text-gray-500 text-sm mb-3 line-clamp-2">
             {product.description}
           </p>

@@ -18,6 +18,7 @@ import SellerVouchers from "./pages/seller/SellerVoucher";
 import AdminVendors from "./pages/admin/AdminVendors";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminLayout from "./layout/AdminLayout";
+import ProductDetail from "./pages/ProductDetail";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/cart" element={<CartPage />} />

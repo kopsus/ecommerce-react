@@ -1,4 +1,4 @@
-import { toast } from "react-hot-toast/headless";
+import toast from "react-hot-toast";
 import type { Product } from "../types";
 import { formatRupiah, IMAGE_URL } from "../utils/format";
 import { ShoppingCart, Heart, Loader2 } from "lucide-react";
@@ -7,6 +7,7 @@ import { useState } from "react";
 import { UseAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { UseCart } from "../context/CartContext";
+import { UseWishlist } from "../context/WishlistContext";
 
 interface ProductCardProps {
   product: Product;
@@ -17,6 +18,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const { user } = UseAuth();
   const navigate = useNavigate();
   const { refreshCart } = UseCart();
+  const { refreshWishlist } = UseWishlist();
 
   const handleAddToCart = async () => {
     // 1. Cek Login: Kalau belum login, lempar ke halaman login
@@ -45,6 +47,27 @@ const ProductCard = ({ product }: ProductCardProps) => {
     }
   };
 
+  const handleAddToWishlist = async () => {
+    if (!user) {
+      toast.error("Login dulu untuk wishlist");
+      return;
+    }
+
+    try {
+      await api.post("/wishlist", { productId: product.id });
+      toast.success("Disimpan ke Wishlist ❤");
+      refreshWishlist();
+    } catch (error: any) {
+      // Backend akan return 400 kalau sudah ada
+      const msg = error.response?.data?.message;
+      if (msg === "Produk sudah ada di wishlist") {
+        toast("Produk sudah ada di wishlist", { icon: "ℹ️" });
+      } else {
+        toast.error("Gagal menambah wishlist");
+      }
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition duration-300 border border-gray-100 overflow-hidden flex flex-col h-full">
       {/* Gambar Produk */}
@@ -59,7 +82,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
           className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
         />
         {/* Tombol Wishlist (Hati) muncul saat hover */}
-        <button className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition transform translate-y-2 group-hover:translate-y-0 text-gray-400 hover:text-red-500">
+        <button
+          onClick={handleAddToWishlist}
+          className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition transform translate-y-2 group-hover:translate-y-0 text-gray-400 hover:text-red-500"
+        >
           <Heart className="h-5 w-5" />
         </button>
       </div>

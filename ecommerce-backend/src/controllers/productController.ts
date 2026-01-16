@@ -70,6 +70,34 @@ export const getAllProducts = async (
   }
 };
 
+export const getProductById = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const product = await prisma.product.findUnique({
+      where: { id: Number(id) },
+      include: {
+        seller: {
+          select: { name: true, email: true, id: true },
+        },
+      },
+    });
+
+    if (!product) {
+      res.status(404).json({ message: "Produk tidak ditemukan" });
+      return;
+    }
+
+    res.status(200).json(product);
+  } catch (error) {
+    console.error("Error getProductById:", error);
+    res.status(500).json({ message: "Gagal mengambil detail produk", error });
+  }
+};
+
 export const updateProduct = async (
   req: AuthRequest,
   res: Response

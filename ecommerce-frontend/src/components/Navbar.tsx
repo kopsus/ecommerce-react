@@ -88,7 +88,7 @@ const Navbar = () => {
                 </div>
               </>
             ) : (
-              <div className="flex gap-4">
+              <div className="flex items-center gap-4">
                 <Link
                   to="/login"
                   className="text-gray-600 hover:text-blue-600 font-medium"
